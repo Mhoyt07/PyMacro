@@ -47,7 +47,7 @@ class AutoClick:
         update_display()
         root.mainloop()
 
-if __name__ == '__main__':
-    mp.freeze_support()
-    time.sleep(5)
-    run = AutoClick()
+#if __name__ == '__main__'
+mp.freeze_support()
+time.sleep(5)
+run = AutoClick()
