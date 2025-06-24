@@ -5,47 +5,44 @@ import keyboard
 import tkinter as tk
 import threading
 
-distance_multiplier = 1
+distance_multiplier = 10
+
+def travel_distance(key, travel, player_speed, current_travel):
+    travel *= distance_multiplier
+    distance = 0
+    time_0 = time.time()
+    with player_speed.get_lock():
+        speed_0 = float(player_speed.value)
+    while distance < travel:
+        for k in key:
+            ag.keyDown(k)
+        with current_travel.get_lock():
+            current_travel.value = distance
+        time_1 = time.time()
+        elapsed_time = time_1 - time_0
+        with player_speed.get_lock():
+            speed_1 = float(player_speed.value)
+        avg_speed = (speed_0 + speed_1) / 2
+        added_distance = elapsed_time * avg_speed
+        distance += added_distance
+        
+        time_0 = time_1
+        speed_0 = speed_1
 
 def snake_path(player_speed, current_travel, stop_flag=False, x=1, z=1):
     import pyautogui as ag
     import time
 
-    distance_multiplier = 100
 
-    def travel_distance(key, travel):
-        travel *= distance_multiplier
-        for k in key:
-            ag.keyDown(k)
-            print(f"{k} down")
-        distance = 0
-        time_0 = time.time()
-        with player_speed.get_lock():
-            speed_0 = float(player_speed.value)
-        while distance < travel:
-            with current_travel.get_lock():
-                current_travel.value = distance
-            time_1 = time.time()
-            elapsed_time = time_1 - time_0
-            with player_speed.get_lock():
-                speed_1 = float(player_speed.value)
-            avg_speed = (speed_0 + speed_1) / 2
-            added_distance = elapsed_time * avg_speed
-            distance += added_distance
-            
-            time_0 = time_1
-            speed_0 = speed_1
-        for k in key:
-            ag.keyUp(k)
-            print(f"{k} up")
+    
 
     while not stop_flag:
         for num in range(z):
-            travel_distance(['d'], x)
-            travel_distance(['s'], 1)
-            travel_distance(['a'], x)
-            travel_distance(['s'], 1)
-        travel_distance(['w', 'a'], (z + 1) * 2)
+            travel_distance(['d'], x, player_speed, current_travel)
+            travel_distance(['s'], 1, player_speed, current_travel)
+            travel_distance(['a'], x, player_speed, current_travel)
+            travel_distance(['s'], 1, player_speed, current_travel)
+        travel_distance(['w', 'a'], (z + 1) * 2, player_speed, current_travel)
 
 class main:
     def __init__(self):
@@ -126,16 +123,18 @@ class main:
         
 
     def update_loop(self):
-        if self.end == True:
-            for process in self.processes:
-                process.terminate()
 
-        if keyboard.is_pressed('1'):
-            self.end = True
-            print("END")
+        
+        keyboard.on_press_key('-', lambda _: self.stop_program())
         
         with self.player_speed.get_lock():
             self.player_speed = mp.Value('d', 20.0)
+    
+    
+    def stop_program(self):
+        self.end = True
+        for process in self.processes:
+            process.terminate()
 
     def start_gui(self):
         root = tk.Tk()
