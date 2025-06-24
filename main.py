@@ -1,5 +1,6 @@
 import pyautogui as ag
 import time
+import AutoClick
 import multiprocessing as mp
 import keyboard
 import tkinter as tk
@@ -68,9 +69,12 @@ class main:
         #self.path_process.start_process()
         #self.processes.append(self.path_process)
 
-        self.path_process = mp.Process(target=self.paths["snake"], args=(self.player_speed, self.current_travel))
+        self.path_process = mp.Process(target=self.paths["snake"], args=(self.player_speed, self.current_travel, self.end, 2, 2))
         self.path_process.start()
         self.processes.append(self.path_process)
+
+        auto_clicker = AutoClick.AutoClick()
+        self.processes.append(auto_clicker.click_process)
 
         self.start_gui()
 
