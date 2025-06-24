@@ -1,6 +1,5 @@
 import pyautogui as ag
 import time
-import Test as cs
 import multiprocessing as mp
 import keyboard
 import tkinter as tk
@@ -15,19 +14,25 @@ class AutoClick:
     def __init__(self):
         self.click_speed = 1 / 8
         self.status = mp.Value('b', 0)
+        print("Working")
 
         self.update_thread = threading.Thread(target=self.update_loop, daemon=True)
         self.update_thread.start()
 
-        self.click_process = mp.Process(target=click(), args=(self.click_speed))
+        self.click_process = mp.Process(target=click, args=(self.click_speed,))
         self.click_process.start()
+        self.status.value = 1
 
         self.start_gui()
 
     def update_loop(self):
-        if keyboard.on_press('-'):
-            self.status = mp.Value('b', 0)
-            self.click_process.terminate()
+        keyboard.on_press_key('-', lambda _: self.stop_click_process())
+    
+    def stop_click_process(self):
+        print("Stopping click process")
+        with self.status.get_lock():
+            self.status.value = 0
+        self.click_process.terminate()
 
 
 
@@ -47,7 +52,7 @@ class AutoClick:
         update_display()
         root.mainloop()
 
-#if __name__ == '__main__'
-mp.freeze_support()
-time.sleep(5)
-run = AutoClick()
+if __name__ == '__main__':
+    mp.freeze_support()
+    time.sleep(5)
+    run = AutoClick()

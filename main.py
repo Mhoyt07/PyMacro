@@ -1,6 +1,5 @@
 import pyautogui as ag
 import time
-import Test as cs
 import multiprocessing as mp
 import keyboard
 import tkinter as tk
@@ -174,4 +173,5 @@ class path:
 if __name__ == '__main__':
     mp.freeze_support()
     time.sleep(5)
+    print("Main is running")
     run = main()
